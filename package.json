@@ -1,0 +1,24 @@
+{
+  "name": "mesto-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Roman-Statsura/mesto-backend.git"
+  },
+  "author": "Roman-Statsura",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Roman-Statsura/mesto-backend/issues"
+  },
+  "homepage": "https://github.com/Roman-Statsura/mesto-backend#readme",
+  "devDependencies": {
+    "eslint": "^7.5.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0"
+  }
+}
