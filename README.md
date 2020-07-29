@@ -13,7 +13,13 @@ https://github.com/Roman-Statsura/mesto-backend.git
 
 npm install
 
-страница доступна по адресу http://localhost:3000, где 3000 - порт по умолчанию
+### Запуск сервера
+
+npm run start 
+запускает сервер на http://localhost:3000, где 3000 - порт по умолчанию
+
+npm run dev 
+запускает сервер на http://localhost:3000 с хот релоудом
 
 ### Функционал
 

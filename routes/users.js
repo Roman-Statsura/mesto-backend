@@ -1,24 +1,25 @@
 const usersRouter = require('express').Router();
 const path = require('path');
-const fs = require('fs');
+const fsPromises = require('fs').promises;
 
 const usersPath = path.join(__dirname, '../data/users.json');
 
 usersRouter.get('/', (req, res) => {
-  let users;
-  try {
-    const readUsersPath = fs.readFileSync(usersPath);
-    users = JSON.parse(readUsersPath);
-  } catch (err) {
+  fsPromises.readFile(usersPath, { encoding: 'utf8' })
+    .then((data) => {
+      const users = JSON.parse(data);
+      if (!users) {
+        res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+      } else {
+        res.send(users);
+      }
+    })
+    .catch((err) => {
     /* eslint no-console: ["error", { allow: ["error"] }] */
-    console.error('Что-то определенно сломалось');
-    res.status(500).send({ message: 'Что-то определенно сломалось' });
-  }
-  if (!users) {
-    res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
-  } else {
-    res.send(users);
-  }
+      console.error(err.message);
+      console.error('Что-то определенно сломалось');
+      res.status(500).send({ message: 'Что-то определенно сломалось' });
+    });
 });
 
 function getUser(id, users) {
@@ -27,20 +28,22 @@ function getUser(id, users) {
 }
 
 usersRouter.get('/:id', (req, res) => {
-  let users;
-  try {
-    const readUsersPath = fs.readFileSync(usersPath);
-    users = JSON.parse(readUsersPath);
-  } catch (err) {
+  fsPromises.readFile(usersPath, { encoding: 'utf8' })
+    .then((data) => {
+      const users = JSON.parse(data);
+      const seachedUser = getUser(req.params.id, users);
+      if (seachedUser) {
+        res.send(seachedUser);
+      } else {
+        res.status(404).send({ message: 'Нет пользователя с таким id' });
+      }
+    })
+    .catch((err) => {
     /* eslint no-console: ["error", { allow: ["error"] }] */
-    console.error('Что-то определенно сломалось');
-    res.status(500).send({ message: 'Что-то определенно сломалось' });
-  }
-  if (getUser(req.params.id, users)) {
-    res.send(getUser(req.params.id, users));
-  } else {
-    res.status(404).send({ message: 'Нет пользователя с таким id' });
-  }
+      console.error(err.message);
+      console.error('Что-то определенно сломалось');
+      res.status(500).send({ message: 'Что-то определенно сломалось' });
+    });
 });
 
 module.exports = usersRouter;
