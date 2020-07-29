@@ -1,0 +1,29 @@
+{
+  "name": "mesto-backend",
+  "version": "1.0.0",
+  "description": "sprint 12 project",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Roman-Statsura/mesto-backend.git"
+  },
+  "author": "Roman-Statsura",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Roman-Statsura/mesto-backend/issues"
+  },
+  "homepage": "https://github.com/Roman-Statsura/mesto-backend#readme",
+  "devDependencies": {
+    "eslint": "^7.5.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
