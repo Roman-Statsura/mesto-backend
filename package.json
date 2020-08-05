@@ -1,7 +1,7 @@
 {
   "name": "mesto-backend",
   "version": "1.0.0",
-  "description": "sprint 12 project",
+  "description": "sprint 13 project",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -24,7 +24,9 @@
     "nodemon": "^2.0.4"
   },
   "dependencies": {
+    "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "mongoose": "^5.9.27"
+    "mongoose": "^5.9.27",
+    "validator": "^13.1.1"
   }
 }
