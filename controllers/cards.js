@@ -3,7 +3,7 @@ const Card = require('../models/card');
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.createNewCard = (req, res) => {
@@ -12,13 +12,19 @@ module.exports.createNewCard = (req, res) => {
 
   Card.create({ name, link, owner: userId })
     .then((card) => res.status(201).send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
-    .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Нет карточки с тaким ID' }));
+    .then((card) => {
+      if (card !== null) {
+        res.send({ data: card });
+      } else {
+        res.status(404).send({ message: 'Нет карточки с тaким ID' });
+      }
+    })
+    .catch(() => res.status(400).send({ message: 'Нет карточки с тaким ID' }));
 };
 
 module.exports.likeCard = (req, res) => {
@@ -34,7 +40,7 @@ module.exports.likeCard = (req, res) => {
     },
   )
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Что-то не так' }));
+    .catch(() => res.status(400).send({ message: 'Что-то не так' }));
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -50,5 +56,5 @@ module.exports.dislikeCard = (req, res) => {
     },
   )
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Что-то не так' }));
+    .catch(() => res.status(400).send({ message: 'Что-то не так' }));
 };

@@ -3,7 +3,7 @@ const User = require('../models/user');
 module.exports.getAllUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -15,7 +15,7 @@ module.exports.getUserById = (req, res) => {
         res.status(404).send({ message: 'Нет пользователя с таким ID' });
       }
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.createNewUser = (req, res) => {
@@ -23,7 +23,7 @@ module.exports.createNewUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.status(201).send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.updateUserProfile = (req, res) => {
@@ -43,7 +43,7 @@ module.exports.updateUserProfile = (req, res) => {
     },
   )
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Что-то не так' }));
+    .catch(() => res.status(400).send({ message: 'Что-то не так' }));
 };
 
 module.exports.updateUserAvatar = (req, res) => {
@@ -62,5 +62,5 @@ module.exports.updateUserAvatar = (req, res) => {
     },
   )
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Что-то не так' }));
+    .catch(() => res.status(400).send({ message: 'Что-то не так' }));
 };
