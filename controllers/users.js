@@ -39,11 +39,11 @@ module.exports.updateUserProfile = (req, res) => {
     {
       new: true,
       runValidators: true,
-      upsert: true,
     },
   )
+    .orFail()
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(400).send({ message: 'Что-то не так' }));
+    .catch(() => res.status(404).send({ message: 'Что-то не так' }));
 };
 
 module.exports.updateUserAvatar = (req, res) => {
@@ -58,9 +58,9 @@ module.exports.updateUserAvatar = (req, res) => {
     {
       new: true,
       runValidators: true,
-      upsert: true,
     },
   )
+    .orFail()
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(400).send({ message: 'Что-то не так' }));
+    .catch(() => res.status(404).send({ message: 'Что-то не так' }));
 };

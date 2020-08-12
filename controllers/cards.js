@@ -39,8 +39,9 @@ module.exports.likeCard = (req, res) => {
       runValidators: true,
     },
   )
+    .orFail()
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(400).send({ message: 'Что-то не так' }));
+    .catch(() => res.status(404).send({ message: 'Что-то не так' }));
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -55,6 +56,7 @@ module.exports.dislikeCard = (req, res) => {
       runValidators: true,
     },
   )
+    .orFail()
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(400).send({ message: 'Что-то не так' }));
+    .catch(() => res.status(404).send({ message: 'Что-то не так' }));
 };
