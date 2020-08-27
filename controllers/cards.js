@@ -16,12 +16,15 @@ module.exports.createNewCard = (req, res) => {
 };
 
 module.exports.deleteCardById = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
+  Card.findById(req.params.id)
+    .orFail()
     .then((card) => {
-      if (card !== null) {
-        res.send({ data: card });
+      const { owner } = card;
+      if (req.user._id === owner.toString()) {
+        Card.findByIdAndRemove(req.params.id)
+          .then(() => res.send({ message: 'Карточка удалена' }));
       } else {
-        res.status(404).send({ message: 'Нет карточки с тaким ID' });
+        res.status(400).send({ message: 'Нельзя удалять чужую карточку' });
       }
     })
     .catch(() => res.status(400).send({ message: 'Нет карточки с тaким ID' }));
