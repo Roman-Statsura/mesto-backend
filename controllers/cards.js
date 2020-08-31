@@ -3,7 +3,7 @@ const Card = require('../models/card');
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.createNewCard = (req, res) => {
@@ -12,7 +12,13 @@ module.exports.createNewCard = (req, res) => {
 
   Card.create({ name, link, owner: userId })
     .then((card) => res.status(201).send({ data: card }))
-    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(404).send({ message: 'Введите имя карточки и ссылку на картинку' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.deleteCardById = (req, res) => {
@@ -24,10 +30,16 @@ module.exports.deleteCardById = (req, res) => {
         Card.findByIdAndRemove(req.params.id)
           .then(() => res.send({ message: 'Карточка удалена' }));
       } else {
-        res.status(400).send({ message: 'Нельзя удалять чужую карточку' });
+        res.status(403).send({ message: 'Нельзя удалять чужую карточку' });
       }
     })
-    .catch(() => res.status(400).send({ message: 'Нет карточки с тaким ID' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(404).send({ message: 'Нет карточки с тaким ID' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.likeCard = (req, res) => {
@@ -44,7 +56,13 @@ module.exports.likeCard = (req, res) => {
   )
     .orFail()
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(404).send({ message: 'Что-то не так' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(404).send({ message: 'Нет карточки с тaким ID' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -61,5 +79,11 @@ module.exports.dislikeCard = (req, res) => {
   )
     .orFail()
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(404).send({ message: 'Что-то не так' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(404).send({ message: 'Нет карточки с тaким ID' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };

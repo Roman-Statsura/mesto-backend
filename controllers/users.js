@@ -1,28 +1,30 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { secretKey } = require('../secretKey');
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, secretKey, { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
+          sameSite: true,
         })
         .end();
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
+    .catch(() => {
+      res.status(401).send({ message: 'Неверная почта или пароль' });
     });
 };
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -34,24 +36,41 @@ module.exports.getUserById = (req, res) => {
         res.status(404).send({ message: 'Нет пользователя с таким ID' });
       }
     })
-    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(404).send({ message: 'Нет пользователя с таким ID' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.createNewUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
-    .then((user) => res.status(201).send({ data: user }))
-    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
+  if (password.length < 8) {
+    res.status(400).send({ message: 'Слишком короткий пароль' });
+  } else {
+    bcrypt.hash(password, 10)
+      .then((hash) => User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      }))
+      .then((user) => res.status(201).send({ data: user }))
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          res.status(404).send({ message: 'Введите имя, информацию о себе, ссылку на аватар, почту и пароль' });
+        } else if (err.name === 'MongoError') {
+          res.status(409).send({ message: 'Такой пользователь уже существует' });
+        } else {
+          res.status(500).send({ message: 'Произошла ошибка' });
+        }
+      });
+  }
 };
 
 module.exports.updateUserProfile = (req, res) => {
@@ -71,7 +90,13 @@ module.exports.updateUserProfile = (req, res) => {
   )
     .orFail()
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(404).send({ message: 'Что-то не так' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(404).send({ message: 'Введите имя и информацию о себе' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 module.exports.updateUserAvatar = (req, res) => {
@@ -90,5 +115,11 @@ module.exports.updateUserAvatar = (req, res) => {
   )
     .orFail()
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(404).send({ message: 'Что-то не так' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(404).send({ message: 'Введите ссылку на аватар' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
