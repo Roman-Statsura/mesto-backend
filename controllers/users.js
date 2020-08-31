@@ -60,7 +60,13 @@ module.exports.createNewUser = (req, res) => {
         email,
         password: hash,
       }))
-      .then((user) => res.status(201).send({ data: user }))
+      .then((user) => res.status(201).send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      }))
       .catch((err) => {
         if (err.name === 'ValidationError') {
           res.status(404).send({ message: 'Введите имя, информацию о себе, ссылку на аватар, почту и пароль' });
