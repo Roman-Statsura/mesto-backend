@@ -1,6 +1,6 @@
 {
   "name": "mesto-backend",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "sprint 14 project",
   "main": "app.js",
   "scripts": {

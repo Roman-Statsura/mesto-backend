@@ -34,11 +34,13 @@ module.exports.deleteCardById = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'DocumentNotFoundError') {
-        res.status(400).send({ message: 'Нет карточки с тaким ID' });
-      } else {
-        res.status(500).send({ message: err.name });
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Нет карточки с тaким ID' });
       }
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(404).send({ message: 'Объект не найден' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -58,10 +60,12 @@ module.exports.likeCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Нет карточки с тaким ID' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        return res.status(400).send({ message: 'Нет карточки с тaким ID' });
       }
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(404).send({ message: 'Объект не найден' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -81,9 +85,11 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Нет карточки с тaким ID' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        return res.status(400).send({ message: 'Нет карточки с тaким ID' });
       }
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(404).send({ message: 'Объект не найден' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
