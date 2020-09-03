@@ -1,8 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cards = require('./routes/cards');
 const users = require('./routes/users');
+const auth = require('./middlewares/auth');
+const {
+  login,
+  createNewUser,
+} = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 
@@ -15,15 +21,15 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
+app.use(cookieParser());
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5f2adfd4a6f20d2778ff3c09',
-  };
-  next();
-});
+app.post('/signin', login);
+app.post('/signup', createNewUser);
+
+app.use(auth);
 
 app.use('/cards', cards);
 app.use('/users', users);
