@@ -1,5 +1,16 @@
 # mesto-backend
 
+## Backend
+https://api.wantcarrots.tk/
+https://www.api.wantcarrots.tk/
+
+## Frontend
+https://wantcarrots.tk/
+https://www.wantcarrots.tk/
+
+## Публичный IPv4
+178.154.224.131
+
 ### Version 
 "0.0.7"
 
