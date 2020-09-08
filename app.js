@@ -2,8 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const { celebrate, Joi, errors } = require('celebrate');
+const validator = require('validator');
+const BadRequest = require('./errors/bad-request');
 const cards = require('./routes/cards');
 const users = require('./routes/users');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const auth = require('./middlewares/auth');
 const {
   login,
@@ -26,13 +30,39 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', login);
-app.post('/signup', createNewUser);
+app.use(requestLogger);
+
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
+    avatar: Joi.required().custom((value) => {
+      if (!validator.isURL(value)) {
+        throw new BadRequest('Здесь должна быть ссылка на картинку');
+      } else {
+        return value;
+      }
+    }),
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), createNewUser);
 
 app.use(auth);
 
 app.use('/cards', cards);
 app.use('/users', users);
+
+app.use(errorLogger);
+
+app.use(errors());
+
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
