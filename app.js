@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const validator = require('validator');
 const BadRequest = require('./errors/bad-request');
+const NotFoundError = require('./errors/not-found');
 const cards = require('./routes/cards');
 const users = require('./routes/users');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -70,8 +71,8 @@ app.use(errorLogger);
 
 app.use(errors());
 
-app.use((req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use((req, res, next) => {
+  next(new NotFoundError('Запрашиваемый ресурс не найден'));
 });
 
 // eslint-disable-next-line no-unused-vars
