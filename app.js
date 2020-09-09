@@ -27,6 +27,25 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
+const allowedCors = [
+  'https://wantcarrots.tk',
+  'https://www.wantcarrots.tk',
+  'http://wantcarrots.tk',
+  'http://www.wantcarrots.tk',
+  'localhost:3000',
+];
+
+app.use((req, res, next) => {
+  const { origin } = req.headers;
+  if (allowedCors.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+  }
+
+  next();
+});
+
 app.use(cookieParser());
 
 app.use(bodyParser.json());
