@@ -28,7 +28,18 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.use(cors());
+const whitelist = ['https://www.api.wantcarrots.tk', 'https://api.wantcarrots.tk', 'http://www.api.wantcarrots.tk', 'http://api.wantcarrots.tk', 'localhost:3000'];
+const corsOptions = {
+  origin(origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
 
 app.use(cookieParser());
 
