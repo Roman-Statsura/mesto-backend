@@ -1,13 +1,18 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { secretKey } = require('../secretKey');
 
-module.exports.login = (req, res) => {
+const NotFoundError = require('../errors/not-found');
+const Unauthorized = require('../errors/unauthorized');
+const BadRequest = require('../errors/bad-request');
+const Conflict = require('../errors/conflict');
+
+module.exports.login = (req, res, next) => {
+  const { NODE_ENV, JWT_SECRET } = process.env;
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, secretKey, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'secret', { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
@@ -17,40 +22,40 @@ module.exports.login = (req, res) => {
         .end();
     })
     .catch(() => {
-      res.status(401).send({ message: 'Неверная почта или пароль' });
+      next(new Unauthorized('Неверная почта или пароль'));
     });
 };
 
-module.exports.getAllUsers = (req, res) => {
+module.exports.getAllUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.id)
     .orFail()
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Нет пользователя с тaким ID' });
+        return next(new BadRequest('Нет пользователя с тaким ID'));
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'Объект не найден' });
+        return next(new NotFoundError('Объект не найден'));
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return next(new Error('Произошла ошибка'));
     });
 };
 
-module.exports.createNewUser = (req, res) => {
+module.exports.createNewUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
   if (!password) {
-    return res.status(400).send({ message: 'Введите пароль' });
+    return next(new BadRequest('Введите пароль'));
   }
   if (password.length < 8) {
-    return res.status(400).send({ message: 'Слишком короткий пароль' });
+    return next(new BadRequest('Слишком короткий пароль'));
   }
   return bcrypt.hash(password, 10)
     .then((hash) => User.create({
@@ -69,16 +74,16 @@ module.exports.createNewUser = (req, res) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Введите имя, информацию о себе, ссылку на аватар, почту и пароль' });
+        return next(new BadRequest('Введите имя, информацию о себе, ссылку на аватар, почту и пароль'));
       }
       if (err.name === 'MongoError' && err.code === 11000) {
-        return res.status(409).send({ message: 'Такой пользователь уже существует' });
+        return next(new Conflict('Такой пользователь уже существует'));
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return next(new Error('Произошла ошибка'));
     });
 };
 
-module.exports.updateUserProfile = (req, res) => {
+module.exports.updateUserProfile = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
@@ -97,14 +102,14 @@ module.exports.updateUserProfile = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Введите имя и информацию о себе' });
+        next(new BadRequest('Введите имя и информацию о себе'));
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        next(new Error('Произошла ошибка'));
       }
     });
 };
 
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
@@ -122,9 +127,9 @@ module.exports.updateUserAvatar = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Введите ссылку на аватар' });
+        next(new BadRequest('Введите ссылку на аватар'));
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        next(new Error('Произошла ошибка'));
       }
     });
 };
